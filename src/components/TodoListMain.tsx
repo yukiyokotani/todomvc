@@ -1,34 +1,26 @@
-import { useCallback, useMemo, useState } from 'react';
-import { v4 as uuid } from 'uuid';
+import { useCallback, useMemo } from 'react';
 
 import { Todo, TodoItem } from './TodoItem';
 
 type TodoListMainProps = {
+  todos: Todo[];
+  setTodos: (todos: Todo[]) => void;
   filter: 'ALL' | 'ACTIVE' | 'COMPLETED';
 };
 
 /** This section should be hidden by default and shown when there are todos. */
-export const TodoListMain = ({ filter }: TodoListMainProps): JSX.Element => {
-  const [todos, setTodos] = useState<Todo[]>([
-    {
-      id: uuid(),
-      label: 'Taste JavaScript',
-      isCompleted: true
-    },
-    {
-      id: uuid(),
-      label: 'Buy a unicorn',
-      isCompleted: false
-    }
-  ]);
-
+export const TodoListMain = ({
+  todos,
+  setTodos,
+  filter
+}: TodoListMainProps): JSX.Element => {
   const filteredTodos = useMemo(() => {
     if (filter === 'ALL') {
       return todos;
     }
-    const showActive = filter === 'ACTIVE';
+    const showCompleted = filter === 'COMPLETED';
     return todos.filter((todo) =>
-      showActive ? !todo.isCompleted : todo.isCompleted
+      showCompleted ? todo.isCompleted : !todo.isCompleted
     );
   }, [filter, todos]);
 

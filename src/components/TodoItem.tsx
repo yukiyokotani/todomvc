@@ -1,16 +1,14 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useRef } from 'react';
 
 export type Todo = {
   id: string;
   label: string;
-  isEditable: boolean;
   isCompleted: boolean;
 };
 
 type TodoItemProps = {
   todo: Todo;
   setTodoLabel: (label: string) => void;
-  setTodoIsEditable: (isEditable: boolean) => void;
   setTodoIsCompleted: (isCompleted: boolean) => void;
 };
 
@@ -21,25 +19,57 @@ type TodoItemProps = {
 export const TodoItem = ({
   todo,
   setTodoLabel,
-  setTodoIsEditable,
   setTodoIsCompleted
 }: TodoItemProps): JSX.Element => {
-  const handleKeydown = useCallback(
+  const inputRef = useRef<HTMLInputElement | null>(null);
+
+  const handleChangeInput = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
-      setTodoLabel(event.currentTarget.value);
+      setTodoLabel(event.target.value);
     },
     [setTodoLabel]
   );
 
+  const handleKeydownInput = useCallback(
+    (event: React.KeyboardEvent<HTMLInputElement>) => {
+      if (event.key === 'Enter') {
+        inputRef.current?.blur();
+      }
+    },
+    []
+  );
+
   const handleClickCheckbox = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
-      setTodoIsCompleted(event.currentTarget.checked);
+      setTodoIsCompleted(event.target.checked);
     },
     [setTodoIsCompleted]
   );
 
+  const handleDbclickItem = useCallback(
+    (event: React.MouseEvent<HTMLLIElement>) => {
+      console.log(event);
+      event.currentTarget.classList.toggle('editing');
+      inputRef.current?.focus();
+    },
+    []
+  );
+
+  const handleBlurItem = useCallback(
+    (event: React.FocusEvent<HTMLLIElement>) => {
+      if (event.currentTarget.classList.contains('editing')) {
+        event.currentTarget.classList.toggle('editing');
+      }
+    },
+    []
+  );
+
   return (
-    <li className='completed'>
+    <li
+      className={todo.isCompleted ? 'completed' : undefined}
+      onDoubleClick={handleDbclickItem}
+      onBlur={handleBlurItem}
+    >
       <div className='view'>
         <input
           className='toggle'
@@ -50,7 +80,13 @@ export const TodoItem = ({
         <label>{todo.label}</label>
         <button className='destroy'></button>
       </div>
-      <input className='edit' value={todo.label} onChange={handleKeydown} />
+      <input
+        ref={inputRef}
+        className='edit'
+        value={todo.label}
+        onChange={handleChangeInput}
+        onKeyDown={handleKeydownInput}
+      />
     </li>
   );
 };

@@ -1,24 +1,36 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { v4 as uuid } from 'uuid';
 
 import { Todo, TodoItem } from './TodoItem';
 
+type TodoListMainProps = {
+  filter: 'ALL' | 'ACTIVE' | 'COMPLETED';
+};
+
 /** This section should be hidden by default and shown when there are todos. */
-export const TodoListMain = (): JSX.Element => {
+export const TodoListMain = ({ filter }: TodoListMainProps): JSX.Element => {
   const [todos, setTodos] = useState<Todo[]>([
     {
       id: uuid(),
       label: 'Taste JavaScript',
-      isEditable: false,
       isCompleted: true
     },
     {
       id: uuid(),
       label: 'Buy a unicorn',
-      isEditable: false,
       isCompleted: false
     }
   ]);
+
+  const filteredTodos = useMemo(() => {
+    if (filter === 'ALL') {
+      return todos;
+    }
+    const showActive = filter === 'ACTIVE';
+    return todos.filter((todo) =>
+      showActive ? !todo.isCompleted : todo.isCompleted
+    );
+  }, [filter, todos]);
 
   const setTodoLabel = useCallback(
     (index: number, label: string) => {
@@ -26,18 +38,6 @@ export const TodoListMain = (): JSX.Element => {
       const targetTodo = newTodos[index];
       if (targetTodo) {
         targetTodo.label = label;
-        setTodos(newTodos);
-      }
-    },
-    [todos]
-  );
-
-  const setTodoIsEditable = useCallback(
-    (index: number, isEditable: boolean) => {
-      const newTodos = [...todos];
-      const targetTodo = newTodos[index];
-      if (targetTodo) {
-        targetTodo.isEditable = isEditable;
         setTodos(newTodos);
       }
     },
@@ -61,14 +61,11 @@ export const TodoListMain = (): JSX.Element => {
       <input id='toggle-all' className='toggle-all' type='checkbox' />
       <label htmlFor='toggle-all'>Mark all as complete</label>
       <ul className='todo-list'>
-        {todos.map((todo, index) => (
+        {filteredTodos.map((todo, index) => (
           <TodoItem
             key={todo.id}
             todo={todo}
             setTodoLabel={(label: string) => setTodoLabel(index, label)}
-            setTodoIsEditable={(isEditable: boolean) =>
-              setTodoIsEditable(index, isEditable)
-            }
             setTodoIsCompleted={(isCompleted: boolean) =>
               setTodoIsCompleted(index, isCompleted)
             }

@@ -16,7 +16,6 @@ export type Todo = {
 
 export const TodoList = (): JSX.Element => {
   const [todos, setTodos] = useState<Todo[]>([]);
-  console.log(todos);
 
   /**
    * 新しいTodoを追加する

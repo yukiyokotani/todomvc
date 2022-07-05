@@ -24,7 +24,8 @@ export const TodoListFooter = ({
   return (
     <footer className='footer'>
       <span className='todo-count'>
-        <strong>{leftItemsCount}</strong> item left
+        <strong>{leftItemsCount}</strong>
+        {todos.length === 1 ? ' item' : ' items'} left
       </span>
       {/* Remove this if you don't implement routing */}
       <ul className='filters'>

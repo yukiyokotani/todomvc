@@ -16,6 +16,7 @@ export type Todo = {
 
 export const TodoList = (): JSX.Element => {
   const [todos, setTodos] = useState<Todo[]>([]);
+  console.log(todos);
 
   /**
    * 新しいTodoを追加する
@@ -102,6 +103,12 @@ export const TodoList = (): JSX.Element => {
       const newTodos = [...todos];
       newTodos.splice(index, 1);
       setTodos(newTodos);
+      // MEMO: 別解
+      // const newTodos = [
+      //   ...todos.slice(0, index),
+      //   ...todos.slice(index + 1, todos.length)
+      // ];
+      // setTodos(newTodos);
     },
     [todos]
   );

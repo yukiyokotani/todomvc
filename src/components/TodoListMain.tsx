@@ -33,6 +33,8 @@ export const TodoListMain = ({
     );
   }, [filter, todos]);
 
+  console.log(todos);
+
   return (
     <section className='main' hidden={todos.length === 0}>
       <input

@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useRef } from 'react';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
 
 import { Todo } from './TodoList';
 
@@ -23,20 +23,36 @@ export const TodoItem = ({
 }: TodoItemProps): JSX.Element => {
   const inputRef = useRef<HTMLInputElement | null>(null);
 
+  const [todoLabelInEditing, setTodoLabelInEditing] = useState('');
+
   const handleChangeInput = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
-      setTodoLabel(event.target.value);
+      setTodoLabelInEditing(event.target.value);
     },
-    [setTodoLabel]
+    [setTodoLabelInEditing]
   );
+
+  const confirmEditLabel = useCallback(() => {
+    const trimedLabel = todoLabelInEditing.trim();
+    if (trimedLabel.length === 0) {
+      removeTodo();
+    } else {
+      setTodoLabel(trimedLabel);
+      setTodoIsEditing(false);
+    }
+  }, [removeTodo, setTodoIsEditing, setTodoLabel, todoLabelInEditing]);
 
   const handleKeydownInput = useCallback(
     (event: React.KeyboardEvent<HTMLInputElement>) => {
       if (event.key === 'Enter') {
-        inputRef.current?.blur();
+        confirmEditLabel();
+        // MEMO: 以下で一様にsetTodoIsEditing(false)してはダメ。setTodoIsEditingが勝ってremoveされなくなるため。
+      }
+      if (event.key === 'Escape') {
+        setTodoIsEditing(false);
       }
     },
-    []
+    [confirmEditLabel, setTodoIsEditing]
   );
 
   const handleClickCheckbox = useCallback(
@@ -47,13 +63,17 @@ export const TodoItem = ({
   );
 
   const handleDbclickItem = useCallback(() => {
+    setTodoLabelInEditing(todo.label);
     setTodoIsEditing(true);
     queueMicrotask(() => inputRef.current?.focus());
-  }, [setTodoIsEditing]);
+  }, [setTodoIsEditing, todo.label]);
 
   const handleBlurItem = useCallback(() => {
-    setTodoIsEditing(false);
-  }, [setTodoIsEditing]);
+    if (todo.isEditing) {
+      confirmEditLabel();
+      setTodoIsEditing(false);
+    }
+  }, [confirmEditLabel, setTodoIsEditing, todo.isEditing]);
 
   // 宣言的ではない実装
   // const handleDbclickItem = useCallback(
@@ -104,7 +124,7 @@ export const TodoItem = ({
       <input
         ref={inputRef}
         className='edit'
-        value={todo.label}
+        value={todoLabelInEditing}
         onChange={handleChangeInput}
         onKeyDown={handleKeydownInput}
       />

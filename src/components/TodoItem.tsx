@@ -5,7 +5,6 @@ import { Todo } from './TodoList';
 type TodoItemProps = {
   todo: Todo;
   setTodoLabel: (label: string) => void;
-  setTodoIsEditing: (isEditing: boolean) => void;
   setTodoIsCompleted: (isCompleted: boolean) => void;
   removeTodo: () => void;
 };
@@ -17,12 +16,12 @@ type TodoItemProps = {
 export const TodoItem = ({
   todo,
   setTodoLabel,
-  setTodoIsEditing,
   setTodoIsCompleted,
   removeTodo
 }: TodoItemProps): JSX.Element => {
   const inputRef = useRef<HTMLInputElement | null>(null);
 
+  const [isEditing, setIsEditing] = useState(false);
   const [todoLabelInEditing, setTodoLabelInEditing] = useState('');
 
   const handleChangeInput = useCallback(
@@ -38,9 +37,9 @@ export const TodoItem = ({
       removeTodo();
     } else {
       setTodoLabel(trimedLabel);
-      setTodoIsEditing(false);
+      setIsEditing(false);
     }
-  }, [removeTodo, setTodoIsEditing, setTodoLabel, todoLabelInEditing]);
+  }, [removeTodo, setIsEditing, setTodoLabel, todoLabelInEditing]);
 
   const handleKeydownInput = useCallback(
     (event: React.KeyboardEvent<HTMLInputElement>) => {
@@ -49,10 +48,10 @@ export const TodoItem = ({
         // MEMO: 以下で一様にsetTodoIsEditing(false)してはダメ。setTodoIsEditingが勝ってremoveされなくなるため。
       }
       if (event.key === 'Escape') {
-        setTodoIsEditing(false);
+        setIsEditing(false);
       }
     },
-    [confirmEditLabel, setTodoIsEditing]
+    [confirmEditLabel, setIsEditing]
   );
 
   const handleClickCheckbox = useCallback(
@@ -64,16 +63,16 @@ export const TodoItem = ({
 
   const handleDbclickItem = useCallback(() => {
     setTodoLabelInEditing(todo.label);
-    setTodoIsEditing(true);
+    setIsEditing(true);
     queueMicrotask(() => inputRef.current?.focus());
-  }, [setTodoIsEditing, todo.label]);
+  }, [setIsEditing, todo.label]);
 
   const handleBlurItem = useCallback(() => {
-    if (todo.isEditing) {
+    if (isEditing) {
       confirmEditLabel();
-      setTodoIsEditing(false);
+      setIsEditing(false);
     }
-  }, [confirmEditLabel, setTodoIsEditing, todo.isEditing]);
+  }, [confirmEditLabel, isEditing]);
 
   // 宣言的ではない実装
   // const handleDbclickItem = useCallback(
@@ -96,14 +95,14 @@ export const TodoItem = ({
 
   const liClassName = useMemo(() => {
     const classNameList = [];
-    if (todo.isEditing) {
+    if (isEditing) {
       classNameList.push('editing');
     }
     if (todo.isCompleted) {
       classNameList.push('completed');
     }
     return classNameList.join(' ');
-  }, [todo.isCompleted, todo.isEditing]);
+  }, [isEditing, todo.isCompleted]);
 
   return (
     <li

@@ -6,7 +6,6 @@ import { Todo } from './TodoList';
 type TodoListMainProps = {
   todos: Todo[];
   setTodoLabel: (index: number, label: string) => void;
-  setTodoIsEditing: (index: number, isEditing: boolean) => void;
   setTodoIsCompleted: (index: number, isCompleted: boolean) => void;
   toggleAllTodoIsCompleted: () => void;
   removeTodo: (index: number) => void;
@@ -17,7 +16,6 @@ type TodoListMainProps = {
 export const TodoListMain = ({
   todos,
   setTodoLabel,
-  setTodoIsEditing,
   setTodoIsCompleted,
   toggleAllTodoIsCompleted,
   removeTodo,
@@ -49,9 +47,6 @@ export const TodoListMain = ({
             key={todo.id}
             todo={todo}
             setTodoLabel={(label: string) => setTodoLabel(index, label)}
-            setTodoIsEditing={(isEditing: boolean) =>
-              setTodoIsEditing(index, isEditing)
-            }
             setTodoIsCompleted={(isCompleted: boolean) =>
               setTodoIsCompleted(index, isCompleted)
             }

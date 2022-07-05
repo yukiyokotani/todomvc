@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { v4 as uuid } from 'uuid';
 
 import { TodoListFooter } from './TodoListFooter';
@@ -10,12 +10,25 @@ export type Filter = 'ALL' | 'ACTIVE' | 'COMPLETED';
 export type Todo = {
   id: string;
   label: string;
-  isEditing: boolean;
   isCompleted: boolean;
 };
 
 export const TodoList = (): JSX.Element => {
   const [todos, setTodos] = useState<Todo[]>([]);
+
+  // MEMO: routingは実装しない。初期値のみハッシュから取得する
+  const [filter, setFilter] = useState<Filter>(() => {
+    // MEMO: HashLocationStrategyと呼ぶ。最近はPathLocationStrategyが一般的であり、あまり使用しない。
+    const hash = location.hash.slice(2);
+    switch (hash) {
+      case 'active':
+        return 'ACTIVE';
+      case 'completed':
+        return 'COMPLETED';
+      default:
+        return 'ALL';
+    }
+  });
 
   /**
    * 新しいTodoを追加する
@@ -26,10 +39,17 @@ export const TodoList = (): JSX.Element => {
       const newTodo: Todo = {
         id: uuid(),
         label,
-        isEditing: false,
         isCompleted: false
       };
       setTodos([...todos, newTodo]);
+      fetch('http://localhost:8080/todos', {
+        method: 'POST',
+        mode: 'cors',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(newTodo)
+      });
     },
     [todos]
   );
@@ -47,22 +67,14 @@ export const TodoList = (): JSX.Element => {
         targetTodo.label = label;
       }
       setTodos(newTodos);
-    },
-    [todos]
-  );
-
-  /**
-   * Todoの編集状態を変更する
-   * @param index - Todoのindex
-   */
-  const setTodoIsEditing = useCallback(
-    (index: number, isEditing: boolean) => {
-      const newTodos = [...todos];
-      const targetTodo = newTodos[index];
-      if (targetTodo) {
-        targetTodo.isEditing = isEditing;
-      }
-      setTodos(newTodos);
+      fetch(`http://localhost:8080/todos/${targetTodo?.id}`, {
+        method: 'PUT',
+        mode: 'cors',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ ...targetTodo, isEditing: false })
+      });
     },
     [todos]
   );
@@ -79,6 +91,14 @@ export const TodoList = (): JSX.Element => {
         targetTodo.isCompleted = isCompleted;
       }
       setTodos(newTodos);
+      fetch(`http://localhost:8080/todos/${targetTodo?.id}`, {
+        method: 'PUT',
+        mode: 'cors',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(targetTodo)
+      });
     },
     [todos]
   );
@@ -108,6 +128,10 @@ export const TodoList = (): JSX.Element => {
       //   ...todos.slice(index + 1, todos.length)
       // ];
       // setTodos(newTodos);
+      fetch(`http://localhost:8080/todos/${todos[index]?.id}`, {
+        method: 'DELETE',
+        mode: 'cors'
+      });
     },
     [todos]
   );
@@ -118,19 +142,15 @@ export const TodoList = (): JSX.Element => {
     setTodos(newTodos);
   }, [todos]);
 
-  // MEMO: routingは実装しない。初期値のみハッシュから取得する
-  const [filter, setFilter] = useState<Filter>(() => {
-    // MEMO: HashLocationStrategyと呼ぶ。最近はPathLocationStrategyが一般的であり、あまり使用しない。
-    const hash = location.hash.slice(2);
-    switch (hash) {
-      case 'active':
-        return 'ACTIVE';
-      case 'completed':
-        return 'COMPLETED';
-      default:
-        return 'ALL';
-    }
-  });
+  useEffect(() => {
+    fetch('http://localhost:8080/todos', {
+      method: 'GET',
+      mode: 'cors'
+    }).then(async (resonse) => {
+      const todos = await resonse.json();
+      setTodos(todos);
+    });
+  }, []);
 
   return (
     <section className='todoapp'>
@@ -139,7 +159,6 @@ export const TodoList = (): JSX.Element => {
         todos={todos}
         filter={filter}
         setTodoLabel={setTodoLabel}
-        setTodoIsEditing={setTodoIsEditing}
         setTodoIsCompleted={setTodoIsCompleted}
         toggleAllTodoIsCompleted={toggleAllTodoIsCompleted}
         removeTodo={removeTodo}

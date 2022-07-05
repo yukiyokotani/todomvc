@@ -82,7 +82,6 @@ export const TodoItem = ({
     if (todo.isCompleted) {
       classNameList.push('completed');
     }
-    console.log(classNameList);
     return classNameList.join(' ');
   }, [todo.isCompleted, todo.isEditing]);
 

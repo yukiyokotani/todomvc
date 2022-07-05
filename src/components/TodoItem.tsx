@@ -1,10 +1,11 @@
-import React, { useCallback, useRef } from 'react';
+import React, { useCallback, useMemo, useRef } from 'react';
 
 import { Todo } from './TodoList';
 
 type TodoItemProps = {
   todo: Todo;
   setTodoLabel: (label: string) => void;
+  setTodoIsEditing: (isEditing: boolean) => void;
   setTodoIsCompleted: (isCompleted: boolean) => void;
   removeTodo: () => void;
 };
@@ -16,6 +17,7 @@ type TodoItemProps = {
 export const TodoItem = ({
   todo,
   setTodoLabel,
+  setTodoIsEditing,
   setTodoIsCompleted,
   removeTodo
 }: TodoItemProps): JSX.Element => {
@@ -44,26 +46,49 @@ export const TodoItem = ({
     [setTodoIsCompleted]
   );
 
-  const handleDbclickItem = useCallback(
-    (event: React.MouseEvent<HTMLLIElement>) => {
-      event.currentTarget.classList.toggle('editing');
-      inputRef.current?.focus();
-    },
-    []
-  );
+  const handleDbclickItem = useCallback(() => {
+    setTodoIsEditing(true);
+    queueMicrotask(() => inputRef.current?.focus());
+  }, [setTodoIsEditing]);
 
-  const handleBlurItem = useCallback(
-    (event: React.FocusEvent<HTMLLIElement>) => {
-      if (event.currentTarget.classList.contains('editing')) {
-        event.currentTarget.classList.toggle('editing');
-      }
-    },
-    []
-  );
+  const handleBlurItem = useCallback(() => {
+    setTodoIsEditing(false);
+  }, [setTodoIsEditing]);
+
+  // 宣言的ではない実装
+  // const handleDbclickItem = useCallback(
+  //   (event: React.MouseEvent<HTMLLIElement>) => {
+  //     event.currentTarget.classList.toggle('editing');
+  //     inputRef.current?.focus();
+  //   },
+  //   []
+  // );
+
+  // 宣言的ではない実装
+  // const handleBlurItem = useCallback(
+  //   (event: React.FocusEvent<HTMLLIElement>) => {
+  //     if (event.currentTarget.classList.contains('editing')) {
+  //       event.currentTarget.classList.toggle('editing');
+  //     }
+  //   },
+  //   []
+  // );
+
+  const liClassName = useMemo(() => {
+    const classNameList = [];
+    if (todo.isEditing) {
+      classNameList.push('editing');
+    }
+    if (todo.isCompleted) {
+      classNameList.push('completed');
+    }
+    console.log(classNameList);
+    return classNameList.join(' ');
+  }, [todo.isCompleted, todo.isEditing]);
 
   return (
     <li
-      className={todo.isCompleted ? 'completed' : undefined}
+      className={liClassName}
       onDoubleClick={handleDbclickItem}
       onBlur={handleBlurItem}
     >

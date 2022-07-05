@@ -10,6 +10,7 @@ export type Filter = 'ALL' | 'ACTIVE' | 'COMPLETED';
 export type Todo = {
   id: string;
   label: string;
+  isEditing: boolean;
   isCompleted: boolean;
 };
 
@@ -25,6 +26,7 @@ export const TodoList = (): JSX.Element => {
       const newTodo: Todo = {
         id: uuid(),
         label,
+        isEditing: false,
         isCompleted: false
       };
       setTodos([...todos, newTodo]);
@@ -43,6 +45,22 @@ export const TodoList = (): JSX.Element => {
       const targetTodo = newTodos[index];
       if (targetTodo) {
         targetTodo.label = label;
+      }
+      setTodos(newTodos);
+    },
+    [todos]
+  );
+
+  /**
+   * Todoの編集状態を変更する
+   * @param index - Todoのindex
+   */
+  const setTodoIsEditing = useCallback(
+    (index: number, isEditing: boolean) => {
+      const newTodos = [...todos];
+      const targetTodo = newTodos[index];
+      if (targetTodo) {
+        targetTodo.isEditing = isEditing;
       }
       setTodos(newTodos);
     },
@@ -103,6 +121,7 @@ export const TodoList = (): JSX.Element => {
         todos={todos}
         filter={filter}
         setTodoLabel={setTodoLabel}
+        setTodoIsEditing={setTodoIsEditing}
         setTodoIsCompleted={setTodoIsCompleted}
         toggleAllTodoIsCompleted={toggleAllTodoIsCompleted}
         removeTodo={removeTodo}

@@ -1,19 +1,20 @@
 import { useMemo } from 'react';
 
-import { Todo } from './TodoItem';
-import { Filter } from './TodoList';
+import { Filter, Todo } from './TodoList';
 
 type TodoListFooterProps = {
   todos: Todo[];
   filter: Filter;
   setFilter: (filter: Filter) => void;
+  removeCompletedTodo: () => void;
 };
 
 /** This footer should be hidden by default and shown when there are todos */
 export const TodoListFooter = ({
   todos,
   filter,
-  setFilter
+  setFilter,
+  removeCompletedTodo
 }: TodoListFooterProps): JSX.Element => {
   const leftItemsCount = useMemo(
     () => todos.filter((todo) => !todo.isCompleted).length,
@@ -22,7 +23,6 @@ export const TodoListFooter = ({
 
   return (
     <footer className='footer'>
-      {/* This should be `0 items left` by default */}
       <span className='todo-count'>
         <strong>{leftItemsCount}</strong> item left
       </span>
@@ -50,8 +50,13 @@ export const TodoListFooter = ({
           </a>
         </li>
       </ul>
-      {/* Hidden if no completed items are left ↓ */}
-      <button className='clear-completed'>Clear completed</button>
+      <button
+        className='clear-completed'
+        hidden={leftItemsCount === todos.length}
+        onClick={removeCompletedTodo}
+      >
+        Clear completed
+      </button>
     </footer>
   );
 };

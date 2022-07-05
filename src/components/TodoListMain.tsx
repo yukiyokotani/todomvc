@@ -1,17 +1,24 @@
-import { useCallback, useMemo } from 'react';
+import { useMemo } from 'react';
 
-import { Todo, TodoItem } from './TodoItem';
+import { TodoItem } from './TodoItem';
+import { Todo } from './TodoList';
 
 type TodoListMainProps = {
   todos: Todo[];
-  setTodos: (todos: Todo[]) => void;
+  setTodoLabel: (index: number, label: string) => void;
+  setTodoIsCompleted: (index: number, isCompleted: boolean) => void;
+  toggleAllTodoIsCompleted: () => void;
+  removeTodo: (index: number) => void;
   filter: 'ALL' | 'ACTIVE' | 'COMPLETED';
 };
 
 /** This section should be hidden by default and shown when there are todos. */
 export const TodoListMain = ({
   todos,
-  setTodos,
+  setTodoLabel,
+  setTodoIsCompleted,
+  toggleAllTodoIsCompleted,
+  removeTodo,
   filter
 }: TodoListMainProps): JSX.Element => {
   const filteredTodos = useMemo(() => {
@@ -24,33 +31,15 @@ export const TodoListMain = ({
     );
   }, [filter, todos]);
 
-  const setTodoLabel = useCallback(
-    (index: number, label: string) => {
-      const newTodos = [...todos];
-      const targetTodo = newTodos[index];
-      if (targetTodo) {
-        targetTodo.label = label;
-        setTodos(newTodos);
-      }
-    },
-    [todos]
-  );
-
-  const setTodoIsCompleted = useCallback(
-    (index: number, isCompleted: boolean) => {
-      const newTodos = [...todos];
-      const targetTodo = newTodos[index];
-      if (targetTodo) {
-        targetTodo.isCompleted = isCompleted;
-        setTodos(newTodos);
-      }
-    },
-    [todos]
-  );
-
   return (
-    <section className='main'>
-      <input id='toggle-all' className='toggle-all' type='checkbox' />
+    <section className='main' hidden={todos.length === 0}>
+      <input
+        id='toggle-all'
+        className='toggle-all'
+        type='checkbox'
+        checked={todos.every((todo) => todo.isCompleted)}
+        onChange={toggleAllTodoIsCompleted}
+      />
       <label htmlFor='toggle-all'>Mark all as complete</label>
       <ul className='todo-list'>
         {filteredTodos.map((todo, index) => (
@@ -61,6 +50,7 @@ export const TodoListMain = ({
             setTodoIsCompleted={(isCompleted: boolean) =>
               setTodoIsCompleted(index, isCompleted)
             }
+            removeTodo={() => removeTodo(index)}
           />
         ))}
       </ul>

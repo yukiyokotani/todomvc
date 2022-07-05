@@ -1,15 +1,12 @@
 import React, { useCallback, useRef } from 'react';
 
-export type Todo = {
-  id: string;
-  label: string;
-  isCompleted: boolean;
-};
+import { Todo } from './TodoList';
 
 type TodoItemProps = {
   todo: Todo;
   setTodoLabel: (label: string) => void;
   setTodoIsCompleted: (isCompleted: boolean) => void;
+  removeTodo: () => void;
 };
 
 /**
@@ -19,7 +16,8 @@ type TodoItemProps = {
 export const TodoItem = ({
   todo,
   setTodoLabel,
-  setTodoIsCompleted
+  setTodoIsCompleted,
+  removeTodo
 }: TodoItemProps): JSX.Element => {
   const inputRef = useRef<HTMLInputElement | null>(null);
 
@@ -48,7 +46,6 @@ export const TodoItem = ({
 
   const handleDbclickItem = useCallback(
     (event: React.MouseEvent<HTMLLIElement>) => {
-      console.log(event);
       event.currentTarget.classList.toggle('editing');
       inputRef.current?.focus();
     },
@@ -78,7 +75,7 @@ export const TodoItem = ({
           onChange={handleClickCheckbox}
         />
         <label>{todo.label}</label>
-        <button className='destroy'></button>
+        <button className='destroy' onClick={removeTodo}></button>
       </div>
       <input
         ref={inputRef}

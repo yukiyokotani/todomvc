@@ -119,7 +119,19 @@ export const TodoList = (): JSX.Element => {
     setTodos(newTodos);
   }, [todos]);
 
-  const [filter, setFilter] = useState<Filter>('ALL');
+  // MEMO: routingは実装しない。初期値のみハッシュから取得する
+  const [filter, setFilter] = useState<Filter>(() => {
+    // MEMO: HashLocationStrategyと呼ぶ。最近はPathLocationStrategyが一般的であり、あまり使用しない。
+    const hash = location.hash.slice(2);
+    switch (hash) {
+      case 'active':
+        return 'ACTIVE';
+      case 'completed':
+        return 'COMPLETED';
+      default:
+        return 'ALL';
+    }
+  });
 
   return (
     <section className='todoapp'>

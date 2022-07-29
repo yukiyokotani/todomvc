@@ -1,21 +1,16 @@
 {
   "todos": [
     {
-      "id": "e20c6cef-ca72-44af-888f-a77bd10c1b56",
-      "label": "test2",
+      "id": "6f8ae4d6-0314-4560-9404-a8f1ae0f002f",
+      "label": "apple",
       "isCompleted": true,
       "isEditing": false
     },
     {
-      "id": "d7b07b3d-2fa1-4691-9415-fdb6a29db05b",
-      "label": "test2",
+      "id": "065bcce1-91ba-4015-8eab-d9212d15ba88",
+      "label": "grape",
       "isCompleted": true,
       "isEditing": false
-    },
-    {
-      "id": "8227c826-6cdb-4b0a-8d6d-e54e3f6b0011",
-      "label": "test44",
-      "isCompleted": true
     }
   ]
 }

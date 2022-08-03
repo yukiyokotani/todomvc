@@ -30,19 +30,27 @@ export const TodoList = (): JSX.Element => {
     }
   });
 
+  /** 新しいTodoを取得する */
+  const fetchTodo = useCallback(async () => {
+    const newTodos = await fetch('http://localhost:8080/todos', {
+      method: 'GET',
+      mode: 'cors'
+    }).then((response) => response.json());
+    setTodos(newTodos);
+  }, []);
+
   /**
    * 新しいTodoを追加する
    * @param label - 新しいTodoのラベル
    */
   const addTodo = useCallback(
-    (label: string) => {
+    async (label: string) => {
       const newTodo: Todo = {
         id: uuid(),
         label,
         isCompleted: false
       };
-      setTodos([...todos, newTodo]);
-      fetch('http://localhost:8080/todos', {
+      await fetch('http://localhost:8080/todos', {
         method: 'POST',
         mode: 'cors',
         headers: {
@@ -50,48 +58,25 @@ export const TodoList = (): JSX.Element => {
         },
         body: JSON.stringify(newTodo)
       });
+      fetchTodo();
     },
-    [todos]
+    [fetchTodo]
   );
 
   /**
-   * 既存のTodoのラベルを変更する
-   * @param index - Todoのindex
+   * Todoのラベルを変更する
+   * @param id - Todoのid
    * @param label - Todoの新しいラベル
    */
   const setTodoLabel = useCallback(
-    (index: number, label: string) => {
-      const newTodos = [...todos];
-      const targetTodo = newTodos[index];
+    async (id: string, label: string) => {
+      const targetTodo = todos.find((todo) => todo.id === id);
       if (targetTodo) {
         targetTodo.label = label;
+      } else {
+        return;
       }
-      setTodos(newTodos);
-      fetch(`http://localhost:8080/todos/${targetTodo?.id}`, {
-        method: 'PUT',
-        mode: 'cors',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ ...targetTodo, isEditing: false })
-      });
-    },
-    [todos]
-  );
-
-  /**
-   * Todoの完了状態を変更する
-   * @param index - Todoのindex
-   */
-  const setTodoIsCompleted = useCallback(
-    (index: number, isCompleted: boolean) => {
-      const newTodos = [...todos];
-      const targetTodo = newTodos[index];
-      if (targetTodo) {
-        targetTodo.isCompleted = isCompleted;
-      }
-      setTodos(newTodos);
-      fetch(`http://localhost:8080/todos/${targetTodo?.id}`, {
+      await fetch(`http://localhost:8080/todos/${id}`, {
         method: 'PUT',
         mode: 'cors',
         headers: {
@@ -99,58 +84,88 @@ export const TodoList = (): JSX.Element => {
         },
         body: JSON.stringify(targetTodo)
       });
+      fetchTodo();
     },
-    [todos]
+    [fetchTodo, todos]
+  );
+
+  /**
+   * Todoの完了状態を変更する
+   * @param id - Todoのid
+   */
+  const setTodoIsCompleted = useCallback(
+    async (id: string, isCompleted: boolean) => {
+      const targetTodo = todos.find((todo) => todo.id === id);
+      if (targetTodo) {
+        targetTodo.isCompleted = isCompleted;
+      } else {
+        return;
+      }
+      await fetch(`http://localhost:8080/todos/${id}`, {
+        method: 'PUT',
+        mode: 'cors',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(targetTodo)
+      });
+      fetchTodo();
+    },
+    [fetchTodo, todos]
   );
 
   /**  すべてのTodoの完了状態をトグルする */
-  const toggleAllTodoIsCompleted = useCallback(() => {
+  const toggleAllTodoIsCompleted = useCallback(async () => {
     const isAllCompleted = todos.every((todo) => todo.isCompleted);
     const newTodos = isAllCompleted
       ? todos.map((todo) => ({ ...todo, isCompleted: false }))
       : todos.map((todo) => ({ ...todo, isCompleted: true }));
-    console.log(newTodos);
-    setTodos(newTodos);
-  }, [todos]);
+    await fetch(`http://localhost:8080/todos`, {
+      method: 'PUT',
+      mode: 'cors',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(newTodos)
+    });
+    fetchTodo();
+  }, [fetchTodo, todos]);
 
   /**
    * Todoを削除する
-   * @param index - Todoのindex
+   * @param id - Todoのid
    */
   const removeTodo = useCallback(
-    (index: number) => {
-      const newTodos = [...todos];
-      newTodos.splice(index, 1);
-      setTodos(newTodos);
+    async (id: string) => {
       // MEMO: 別解
       // const newTodos = [
-      //   ...todos.slice(0, index),
-      //   ...todos.slice(index + 1, todos.length)
+      //   ...todos.slice(0, id),
+      //   ...todos.slice(id + 1, todos.length)
       // ];
       // setTodos(newTodos);
-      fetch(`http://localhost:8080/todos/${todos[index]?.id}`, {
+      await fetch(`http://localhost:8080/todos/${id}`, {
         method: 'DELETE',
         mode: 'cors'
       });
+      fetchTodo();
     },
-    [todos]
+    [fetchTodo]
   );
 
-  /** Todoを削除する */
-  const removeCompletedTodo = useCallback(() => {
-    const newTodos = todos.filter((todo) => !todo.isCompleted);
-    setTodos(newTodos);
-  }, [todos]);
+  /** 完了したTodoを削除する */
+  const removeCompletedTodo = useCallback(async () => {
+    const completedTodos = todos.filter((todo) => todo.isCompleted);
+    const param = completedTodos.map((todo) => `id=${todo.id}`).join('&');
+    await fetch(`http://localhost:8080/todos/?${param}`, {
+      method: 'DELETE',
+      mode: 'cors'
+    });
+    fetchTodo();
+  }, [fetchTodo, todos]);
 
   useEffect(() => {
-    fetch('http://localhost:8080/todos', {
-      method: 'GET',
-      mode: 'cors'
-    }).then(async (resonse) => {
-      const todos = await resonse.json();
-      setTodos(todos);
-    });
-  }, []);
+    fetchTodo();
+  }, [fetchTodo]);
 
   return (
     <section className='todoapp'>

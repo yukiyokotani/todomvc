@@ -5,10 +5,10 @@ import { Todo } from './TodoList';
 
 type TodoListMainProps = {
   todos: Todo[];
-  setTodoLabel: (index: number, label: string) => void;
-  setTodoIsCompleted: (index: number, isCompleted: boolean) => void;
+  setTodoLabel: (id: string, label: string) => void;
+  setTodoIsCompleted: (id: string, isCompleted: boolean) => void;
   toggleAllTodoIsCompleted: () => void;
-  removeTodo: (index: number) => void;
+  removeTodo: (id: string) => void;
   filter: 'ALL' | 'ACTIVE' | 'COMPLETED';
 };
 
@@ -42,15 +42,15 @@ export const TodoListMain = ({
       />
       <label htmlFor='toggle-all'>Mark all as complete</label>
       <ul className='todo-list'>
-        {filteredTodos.map((todo, index) => (
+        {filteredTodos.map((todo, id) => (
           <TodoItem
             key={todo.id}
             todo={todo}
-            setTodoLabel={(label: string) => setTodoLabel(index, label)}
+            setTodoLabel={(label: string) => setTodoLabel(todo.id, label)}
             setTodoIsCompleted={(isCompleted: boolean) =>
-              setTodoIsCompleted(index, isCompleted)
+              setTodoIsCompleted(todo.id, isCompleted)
             }
-            removeTodo={() => removeTodo(index)}
+            removeTodo={() => removeTodo(todo.id)}
           />
         ))}
       </ul>

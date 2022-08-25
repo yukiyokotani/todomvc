@@ -55,9 +55,9 @@ export const TodoList = (): JSX.Element => {
     (index: number, label: string) => {
       const newTodos = [...todos];
       const targetTodo = newTodos[index];
-      if (targetTodo) {
-        targetTodo.label = label;
-      }
+      if (!targetTodo) return;
+      const updatedTodo = { ...targetTodo, label };
+      newTodos[index] = updatedTodo;
       setTodos(newTodos);
     },
     [todos]
@@ -71,9 +71,9 @@ export const TodoList = (): JSX.Element => {
     (index: number, isCompleted: boolean) => {
       const newTodos = [...todos];
       const targetTodo = newTodos[index];
-      if (targetTodo) {
-        targetTodo.isCompleted = isCompleted;
-      }
+      if (!targetTodo) return;
+      const updatedTodo = { ...targetTodo, isCompleted };
+      newTodos[index] = updatedTodo;
       setTodos(newTodos);
     },
     [todos]
@@ -85,7 +85,6 @@ export const TodoList = (): JSX.Element => {
     const newTodos = isAllCompleted
       ? todos.map((todo) => ({ ...todo, isCompleted: false }))
       : todos.map((todo) => ({ ...todo, isCompleted: true }));
-    console.log(newTodos);
     setTodos(newTodos);
   }, [todos]);
 

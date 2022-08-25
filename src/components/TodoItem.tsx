@@ -1,4 +1,10 @@
-import React, { useCallback, useMemo, useRef, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState
+} from 'react';
 
 import { Todo } from './TodoList';
 
@@ -64,7 +70,6 @@ export const TodoItem = ({
   const handleDbclickItem = useCallback(() => {
     setTodoLabelInEditing(todo.label);
     setIsEditing(true);
-    queueMicrotask(() => inputRef.current?.focus());
   }, [setIsEditing, todo.label]);
 
   const handleBlurItem = useCallback(() => {
@@ -103,6 +108,12 @@ export const TodoItem = ({
     }
     return classNameList.join(' ');
   }, [isEditing, todo.isCompleted]);
+
+  useEffect(() => {
+    if (isEditing) {
+      inputRef.current?.focus();
+    }
+  }, [isEditing]);
 
   return (
     <li

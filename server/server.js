@@ -46,7 +46,7 @@ server.put('/todos', (req, res) => {
   } else {
     updateTodo(db, 'todos', req.body);
   }
-  res.sendStatus(200);
+  res.status(200).jsonp(db.get('todos').value());
 
   function updateTodo(db, collection, data) {
     const table = db.get(collection);

@@ -71,18 +71,15 @@ export const TodoList = (): JSX.Element => {
   const setTodoLabel = useCallback(
     async (id: string, label: string) => {
       const targetTodo = todos.find((todo) => todo.id === id);
-      if (targetTodo) {
-        targetTodo.label = label;
-      } else {
-        return;
-      }
+      if (!targetTodo) return;
+      const updatedTodo = { ...targetTodo, label };
       await fetch(`http://localhost:8080/todos/${id}`, {
         method: 'PUT',
         mode: 'cors',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(targetTodo)
+        body: JSON.stringify(updatedTodo)
       });
       fetchTodo();
     },
@@ -96,18 +93,15 @@ export const TodoList = (): JSX.Element => {
   const setTodoIsCompleted = useCallback(
     async (id: string, isCompleted: boolean) => {
       const targetTodo = todos.find((todo) => todo.id === id);
-      if (targetTodo) {
-        targetTodo.isCompleted = isCompleted;
-      } else {
-        return;
-      }
+      if (!targetTodo) return;
+      const updatedTodo = { ...targetTodo, isCompleted };
       await fetch(`http://localhost:8080/todos/${id}`, {
         method: 'PUT',
         mode: 'cors',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(targetTodo)
+        body: JSON.stringify(updatedTodo)
       });
       fetchTodo();
     },
@@ -138,10 +132,7 @@ export const TodoList = (): JSX.Element => {
   const removeTodo = useCallback(
     async (id: string) => {
       // MEMO: 別解
-      // const newTodos = [
-      //   ...todos.slice(0, id),
-      //   ...todos.slice(id + 1, todos.length)
-      // ];
+      // const newTodos = todos.filter((todo) => todo.id !== id);
       // setTodos(newTodos);
       await fetch(`http://localhost:8080/todos/${id}`, {
         method: 'DELETE',

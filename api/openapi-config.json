@@ -1,0 +1,8 @@
+{
+  "schemaFile": "./todo.yaml",
+  "apiFile": "../store/emptyApi.ts",
+  "apiImport": "emptySplitApi",
+  "outputFile": "../store/todoApi.ts",
+  "exportName": "todoApi",
+  "hooks": true
+}

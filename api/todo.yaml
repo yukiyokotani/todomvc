@@ -1,0 +1,137 @@
+openapi: 3.0.0
+x-stoplight:
+  id: ftmp4eidbogmx
+info:
+  title: todo
+  version: '1.0'
+servers:
+  - url: 'http://localhost:8080'
+paths:
+  '/todos/{todoId}':
+    parameters:
+      - schema:
+          type: string
+        name: todoId
+        in: path
+        required: true
+    get:
+      summary: アイテムの取得
+      tags:
+        - Todo
+      responses:
+        '200':
+          description: Todoが見つかった
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Todo'
+              examples:
+                Todoアイテムの取得:
+                  value:
+                    id: string
+                    label: string
+                    isCompleted: true
+        '404':
+          description: Todoが見つからなかった
+      operationId: get-todo-todoId
+      description: TodoのIDからTodoアイテムを取得する
+    patch:
+      summary: Todoの更新
+      operationId: patch-todo-todoId
+      responses:
+        '200':
+          description: Todoが更新された
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Todo'
+              examples: {}
+        '404':
+          description: Todoが見つからなかった
+      description: すでに存在するTodoを更新する
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Todo'
+            examples: {}
+        description: Todoアイテムを更新する
+      tags:
+        - Todo
+  /todos:
+    post:
+      summary: Todoアイテムの登録
+      operationId: post-todos
+      responses:
+        '200':
+          description: リクエストのTodoが正常に登録された
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Todo'
+              examples: {}
+        '400':
+          description: リクエストのTodoアイテムに問題があった
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Todo'
+            examples:
+              Todoアイテムの登録:
+                value:
+                  id: string
+                  label: string
+                  isCompleted: true
+        description: Todoを登録するためには必須フィールドを埋める
+      description: Todoアイテムを登録する
+      tags:
+        - Todo
+    get:
+      summary: Todoリストの取得
+      operationId: get-todos
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Todo'
+              examples:
+                example-1:
+                  value:
+                    - id: string
+                      label: string
+                      isCompleted: true
+      description: Todoリストを取得する
+      tags:
+        - Todo
+    parameters: []
+components:
+  schemas:
+    Todo:
+      title: Todoアイテム
+      type: object
+      description: Todoアイテム
+      x-examples:
+        Apple:
+          id: 7258fbf0-6960-403e-9731-c6410101f20f
+          label: Apple
+          isCompleted: true
+      properties:
+        id:
+          type: string
+          description: TodoのID
+        label:
+          type: string
+          description: Todoのラベル
+        isCompleted:
+          type: boolean
+          format: date
+          description: Todoの完了状態
+      required:
+        - id
+        - label
+        - isCompleted
